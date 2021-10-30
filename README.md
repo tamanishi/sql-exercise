@@ -1,6 +1,228 @@
 # [SQL練習問題 – 一覧まとめ](https://tech.pjin.jp/blog/2016/12/05/sql%E7%B7%B4%E7%BF%92%E5%95%8F%E9%A1%8C-%E4%B8%80%E8%A6%A7%E3%81%BE%E3%81%A8%E3%82%81/)
 
 ```
+https://tech.pjin.jp/blog/2016/04/30/sql%E7%B7%B4%E7%BF%92%E5%95%8F%E9%A1%8C-%E5%95%8F1/
+mysql> select c.group_name, min(c.ranking), max(c.ranking) from countries as c group by c.group_name;
++------------+----------------+----------------+
+| group_name | min(c.ranking) | max(c.ranking) |
++------------+----------------+----------------+
+| A          |              3 |             56 |
+| B          |              1 |             62 |
+| C          |              8 |             46 |
+| D          |              7 |             28 |
+| E          |              6 |             33 |
+| F          |              5 |             44 |
+| G          |              2 |             37 |
+| H          |             11 |             57 |
++------------+----------------+----------------+
+8 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/04/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f2/
+mysql> select avg(height) as 平均身長, avg(weight) as 平均体重 from players where position = 'GK';
++--------------+--------------+
+| 平均身長     | 平均体重     |
++--------------+--------------+
+|     187.6250 |      82.8854 |
++--------------+--------------+
+1 row in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/04/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f3/
+mysql> select c.name, avg(p.height) from countries as c right join players as p on c.id = p.country_id group by c.id, c.name order by avg(p.height) desc;
++--------------------------------------+---------------+
+| name                                 | avg(p.height) |
++--------------------------------------+---------------+
+| ドイツ                               |      185.7391 |
+| ベルギー                             |      185.1739 |
+| ボスニア・ヘルツェゴビナ             |      184.9130 |
+| ギリシャ                             |      184.6087 |
+| クロアチア                           |      183.8261 |
+| 韓国                                 |      183.8261 |
+| イングランド                         |      183.6087 |
+| 米国                                 |      183.2174 |
+| アルジェリア                         |      183.1739 |
+| ナイジェリア                         |      183.0870 |
+| スイス                               |      182.8696 |
+| イタリア                             |      182.8261 |
+| イラン                               |      182.4348 |
+| ロシア                               |      181.8261 |
+| ポルトガル                           |      181.7826 |
+| オーストラリア                       |      181.6522 |
+| アルゼンチン                         |      181.6087 |
+| カメルーン                           |      181.3478 |
+
+
+https://tech.pjin.jp/blog/2016/04/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f4/
+mysql> select (select c.name from countries as c where c.id = p.country_id) as name, avg(p.height) from players as p group by p.country_id order by avg(p.height) desc;
++--------------------------------------+---------------+
+| name                                 | avg(p.height) |
++--------------------------------------+---------------+
+| ドイツ                               |      185.7391 |
+| ベルギー                             |      185.1739 |
+| ボスニア・ヘルツェゴビナ             |      184.9130 |
+| ギリシャ                             |      184.6087 |
+| クロアチア                           |      183.8261 |
+| 韓国                                 |      183.8261 |
+| イングランド                         |      183.6087 |
+| 米国                                 |      183.2174 |
+| アルジェリア                         |      183.1739 |
+| ナイジェリア                         |      183.0870 |
+| スイス                               |      182.8696 |
+| イタリア                             |      182.8261 |
+| イラン                               |      182.4348 |
+| ロシア                               |      181.8261 |
+| ポルトガル                           |      181.7826 |
+| オーストラリア                       |      181.6522 |
+
+
+https://tech.pjin.jp/blog/2016/05/12/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f5/
+mysql> select p.kickoff, c.name, ec.name from pairings as p join countries as c on p.my_country_id = c.id join countries as ec on p.enemy_country_id = ec.id order by p.kickoff asc;
++---------------------+--------------------------------------+--------------------------------------+
+| kickoff             | name                                 | name                                 |
++---------------------+--------------------------------------+--------------------------------------+
+| 2014-06-13 05:00:00 | ブラジル                             | クロアチア                           |
+| 2014-06-13 05:00:00 | クロアチア                           | ブラジル                             |
+| 2014-06-14 01:00:00 | カメルーン                           | メキシコ                             |
+| 2014-06-14 01:00:00 | メキシコ                             | カメルーン                           |
+| 2014-06-14 04:00:00 | オランダ                             | スペイン                             |
+| 2014-06-14 04:00:00 | スペイン                             | オランダ                             |
+| 2014-06-14 07:00:00 | オーストラリア                       | チリ                                 |
+| 2014-06-14 07:00:00 | チリ                                 | オーストラリア                       |
+| 2014-06-15 01:00:00 | コロンビア                           | ギリシャ                             |
+| 2014-06-15 01:00:00 | ギリシャ                             | コロンビア                           |
+| 2014-06-15 04:00:00 | コスタリカ                           | ウルグアイ                           |
+| 2014-06-15 04:00:00 | ウルグアイ                           | コスタリカ                           |
+| 2014-06-15 07:00:00 | イタリア                             | イングランド                         |
+| 2014-06-15 07:00:00 | イングランド                         | イタリア                             |
+
+
+https://tech.pjin.jp/blog/2016/05/12/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f6/
+mysql> select p.name, p.position, p.club, (select count(g.id) from goals as g where p.id = g.player_id) as point from players as p order by point desc limit 10;
++-----------------------+----------+------------------------------------------------+-------+
+| name                  | position | club                                           | point |
++-----------------------+----------+------------------------------------------------+-------+
+| ロドリゲス            | MF       | モナコ（フランス）                             |     7 |
+| ミュラー              | MF       | Bミュンヘン                                    |     6 |
+| ファンペルシー        | FW       | マンチェスターU（イングランド）                |     5 |
+| シュルレ              | MF       | チェルシー（イングランド）                     |     5 |
+| クロース              | MF       | Bミュンヘン                                    |     4 |
+| メッシ                | FW       | バルセロナ（スペイン）                         |     4 |
+| ネイマール            | FW       | バルセロナ（スペイン）                         |     4 |
+| クローゼ              | FW       | ラツィオ（イタリア）                           |     3 |
+| シャキリ              | MF       | Bミュンヘン（ドイツ）                          |     3 |
+| ベンゼマ              | FW       | Rマドリード（スペイン）                        |     3 |
++-----------------------+----------+------------------------------------------------+-------+
+10 rows in set (0.04 sec)
+
+
+https://tech.pjin.jp/blog/2016/05/12/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f7/
+mysql> select p.name, p.position, p.club, count(g.id) as point from players as p left join goals as g on p.id = g.player_id group by p.id, p.name, p.position, p.club order by point desc;
++--------------------------------------+----------+--------------------------------------------------------------------+-------+
+| name                                 | position | club                                                               | point |
++--------------------------------------+----------+--------------------------------------------------------------------+-------+
+| ロドリゲス                           | MF       | モナコ（フランス）                                                 |     7 |
+| ミュラー                             | MF       | Bミュンヘン                                                        |     6 |
+| シュルレ                             | MF       | チェルシー（イングランド）                                         |     5 |
+| ファンペルシー                       | FW       | マンチェスターU（イングランド）                                    |     5 |
+| クロース                             | MF       | Bミュンヘン                                                        |     4 |
+| メッシ                               | FW       | バルセロナ（スペイン）                                             |     4 |
+| ネイマール                           | FW       | バルセロナ（スペイン）                                             |     4 |
+| シャキリ                             | MF       | Bミュンヘン（ドイツ）                                              |     3 |
+| E・バレンシア                        | FW       | パチューカ（メキシコ）                                             |     3 |
+| ベンゼマ                             | FW       | Rマドリード（スペイン）                                            |     3 |
+| ロッベン                             | MF       | Bミュンヘン（ドイツ）                                              |     3 |
+| サンチェス                           | FW       | バルセロナ（スペイン）                                             |     3 |
+| ジャブ                               | MF       | クラブ・アフリカン（チュニジア）                                   |     3 |
+| クローゼ                             | FW       | ラツィオ（イタリア）                                               |     3 |
+| フンメルス                           | DF       | ドルトムント                                                       |     3 |
+| パパスタソプロス                     | DF       | ドルトムント（ドイツ）                                             |     2 |
+| デパイ                               | FW       | PSV                                                                |     2 |
+| スアレス                             | FW       | リバプール（イングランド）                                         |     2 |
+
+
+https://tech.pjin.jp/blog/2016/05/12/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f8/
+mysql> select p.position, count(g.id) as point from players as p join goals as g on p.id = g.player_id group by p.position order by point desc;
++----------+-------+
+| position | point |
++----------+-------+
+| FW       |    91 |
+| MF       |    72 |
+| DF       |    20 |
++----------+-------+
+3 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/06/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f9/
+mysql> select p.birth, timestampdiff(year, p.birth, str_to_date('2014-06-13', '%Y-%m-%d')) as age, p.name, p.position from players as p order by age desc limit 10;
++------------+------+-----------------------+----------+
+| birth      | age  | name                  | position |
++------------+------+-----------------------+----------+
+| 1971-06-21 |   42 | モンドラゴン          | GK       |
+| 1976-01-13 |   38 | ジェペス              | DF       |
+| 1977-03-06 |   37 | カラグニス            | MF       |
+| 1977-05-03 |   37 | バジャダレス          | GK       |
+| 1978-06-09 |   36 | クローゼ              | FW       |
+| 1978-01-28 |   36 | ブフォン              | GK       |
+| 1978-03-11 |   36 | ドログバ              | FW       |
+| 1978-02-07 |   36 | バンビュイテン        | DF       |
+| 1979-01-08 |   35 | プレティコサ          | GK       |
+| 1979-05-19 |   35 | ピルロ                | MF       |
++------------+------+-----------------------+----------+
+10 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/06/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f10/
+mysql> select count(id) from goals where player_id is null;
++-----------+
+| count(id) |
++-----------+
+|         5 |
++-----------+
+1 row in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/06/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f11/
+mysql> select c.group_name, count(g.id) from goals as g join pairings as p on g.pairing_id = p.id join countries as c on p.my_country_id = c.id where p.kickoff between '2014-06-13 00:00:00' and '2014-06-27 23:59:59' group by c.group_name;
++------------+-------------+
+| group_name | count(g.id) |
++------------+-------------+
+| A          |          18 |
+| B          |          22 |
+| C          |          17 |
+| D          |          12 |
+| E          |          19 |
+| F          |          14 |
+| G          |          19 |
+| H          |          15 |
++------------+-------------+
+8 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/06/30/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f12/
+mysql> select g.goal_time from goals as g join pairings as p on g.pairing_id = p.id join players as pl on g.player_id = pl.id join countries as c on pl.country_id = c.id where p.id = 103 and c.id = 9;
++-------------+
+| goal_time   |
++-------------+
+| 前半17分    |
+| 後半45分    |
+| 後半10分    |
+| 後半37分    |
++-------------+
+4 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/07/15/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f13/
+mysql> select c.name, count(g.id) from goals as g join pairings as p on g.pairing_id = p.id join countries as c on p.my_country_id = c.id where p.id in (39, 103) group by c.id;
++-----------------+-------------+
+| name            | count(g.id) |
++-----------------+-------------+
+| コロンビア      |           4 |
+| 日本            |           1 |
++-----------------+-------------+
+2 rows in set (0.01 sec)
+
+
 https://tech.pjin.jp/blog/2016/10/29/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f28/
 mysql> select * from players where birth <= date_add('2016-01-13', interval -40 year);
 +-----+------------+-------------+----------+--------------------+-----------------------------------+------------+--------+--------+
