@@ -265,6 +265,184 @@ mysql> select p.kickoff, c.name, ec.name, c.ranking, ec.ranking, (select count(g
 12 rows in set (0.01 sec)
 
 
+https://tech.pjin.jp/blog/2016/07/25/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f16/
+mysql> select p.kickoff, c.name, ec.name, c.ranking, ec.ranking, (select count(g.id) from goals as g where p.id = g.pairing_id) as point, (select count(eg.id) from goals as eg join pairings as ep on eg.pairing_id = ep.id where p.my_country_id = ep.enemy_country_id and p.enemy_country_id = ep.my_country_id) as epoint from pairings as p left outer join countries as c on p.my_country_id = c.id left outer join countries as ec on p.enemy_country_id = ec.id where c.group_name = 'C' and ec.group_name = 'C' order by p.kickoff asc, c.ranking asc;
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+
+| kickoff             | name                     | name                     | ranking | ranking | point | epoint |
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+
+| 2014-06-15 01:00:00 | コロンビア               | ギリシャ                 |       8 |      12 |     3 |      0 |
+| 2014-06-15 01:00:00 | ギリシャ                 | コロンビア               |      12 |       8 |     0 |      3 |
+| 2014-06-15 10:00:00 | コートジボワール         | 日本                     |      23 |      46 |     2 |      1 |
+| 2014-06-15 10:00:00 | 日本                     | コートジボワール         |      46 |      23 |     1 |      2 |
+| 2014-06-20 01:00:00 | コロンビア               | コートジボワール         |       8 |      23 |     2 |      1 |
+| 2014-06-20 01:00:00 | コートジボワール         | コロンビア               |      23 |       8 |     1 |      2 |
+| 2014-06-20 07:00:00 | ギリシャ                 | 日本                     |      12 |      46 |     0 |      0 |
+| 2014-06-20 07:00:00 | 日本                     | ギリシャ                 |      46 |      12 |     0 |      0 |
+| 2014-06-25 05:00:00 | コロンビア               | 日本                     |       8 |      46 |     4 |      1 |
+| 2014-06-25 05:00:00 | ギリシャ                 | コートジボワール         |      12 |      23 |     2 |      1 |
+| 2014-06-25 05:00:00 | コートジボワール         | ギリシャ                 |      23 |      12 |     1 |      2 |
+| 2014-06-25 05:00:00 | 日本                     | コロンビア               |      46 |       8 |     1 |      4 |
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+
+12 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/08/26/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f17/
+mysql> select p.kickoff, c.name, ec.name, c.ranking, ec.ranking, (select count(g.id) from goals as g where p.id = g.pairing_id) as point, (select count(eg.id) from goals as eg join pairings as ep on eg.pairing_id = ep.id where p.my_country_id = ep.enemy_country_id and p.enemy_country_id = ep.my_country_id) as epoint, ((select count(g.id) from goals as g where p.id = g.pairing_id) - (select count(eg.id) from goals as eg join pairings as ep on eg.pairing_id = ep.id where p.my_country_id = ep.enemy_country_id and p.enemy_country_id = ep.my_country_id)) as point_diff from pairings as p left outer join countries as c on p.my_country_id = c.id left outer join countries as ec on p.enemy_country_id = ec.id where c.group_name = 'C' and ec.group_name = 'C' order by p.kickoff asc, c.ranking asc;
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+------------+
+| kickoff             | name                     | name                     | ranking | ranking | point | epoint | point_diff |
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+------------+
+| 2014-06-15 01:00:00 | コロンビア               | ギリシャ                 |       8 |      12 |     3 |      0 |          3 |
+| 2014-06-15 01:00:00 | ギリシャ                 | コロンビア               |      12 |       8 |     0 |      3 |         -3 |
+| 2014-06-15 10:00:00 | コートジボワール         | 日本                     |      23 |      46 |     2 |      1 |          1 |
+| 2014-06-15 10:00:00 | 日本                     | コートジボワール         |      46 |      23 |     1 |      2 |         -1 |
+| 2014-06-20 01:00:00 | コロンビア               | コートジボワール         |       8 |      23 |     2 |      1 |          1 |
+| 2014-06-20 01:00:00 | コートジボワール         | コロンビア               |      23 |       8 |     1 |      2 |         -1 |
+| 2014-06-20 07:00:00 | ギリシャ                 | 日本                     |      12 |      46 |     0 |      0 |          0 |
+| 2014-06-20 07:00:00 | 日本                     | ギリシャ                 |      46 |      12 |     0 |      0 |          0 |
+| 2014-06-25 05:00:00 | コロンビア               | 日本                     |       8 |      46 |     4 |      1 |          3 |
+| 2014-06-25 05:00:00 | ギリシャ                 | コートジボワール         |      12 |      23 |     2 |      1 |          1 |
+| 2014-06-25 05:00:00 | コートジボワール         | ギリシャ                 |      23 |      12 |     1 |      2 |         -1 |
+| 2014-06-25 05:00:00 | 日本                     | コロンビア               |      46 |       8 |     1 |      4 |         -3 |
++---------------------+--------------------------+--------------------------+---------+---------+-------+--------+------------+
+12 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/08/26/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f18/
+mysql> select p.kickoff, date_add(p.kickoff, interval -12 hour) from pairings as p where p.my_country_id = 1 and p.enemy_country_id = 4;
++---------------------+----------------------------------------+
+| kickoff             | date_add(p.kickoff, interval -12 hour) |
++---------------------+----------------------------------------+
+| 2014-06-13 05:00:00 | 2014-06-12 17:00:00                    |
++---------------------+----------------------------------------+
+1 row in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/08/26/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f19/
+mysql> select timestampdiff(year, p.birth, str_to_date('2014-06-13', '%Y-%m-%d')) as age, count(p.id) as count from players as p group by age;
++------+-------+
+| age  | count |
++------+-------+
+|   18 |     2 |
+|   19 |     7 |
+|   20 |    16 |
+|   21 |    36 |
+|   22 |    40 |
+|   23 |    53 |
+|   24 |    62 |
+|   25 |    63 |
+|   26 |    61 |
+|   27 |    80 |
+|   28 |    73 |
+|   29 |    65 |
+|   30 |    51 |
+|   31 |    37 |
+|   32 |    33 |
+|   33 |    26 |
+|   34 |    15 |
+|   35 |     8 |
+|   36 |     4 |
+|   37 |     2 |
+|   38 |     1 |
+|   42 |     1 |
++------+-------+
+22 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/08/26/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f20/
+mysql> select timestampdiff(year, p.birth, str_to_date('2014-06-13', '%Y-%m-%d')) div 10 * 10 as age, count(p.id) as count from players as p group by age;
++------+-------+
+| age  | count |
++------+-------+
+|   10 |     9 |
+|   20 |   549 |
+|   30 |   177 |
+|   40 |     1 |
++------+-------+
+4 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/09/01/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f21/
+mysql> select timestampdiff(year, p.birth, str_to_date('2014-06-13', '%Y-%m-%d')) div 5 * 5 as age, count(p.id) as count from players as p group by age;
++------+-------+
+| age  | count |
++------+-------+
+|   15 |     9 |
+|   20 |   207 |
+|   25 |   342 |
+|   30 |   162 |
+|   35 |    15 |
+|   40 |     1 |
++------+-------+
+6 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/09/01/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f22/
+mysql> select timestampdiff(year, p.birth, str_to_date('2014-06-13', '%Y-%m-%d')) div 5 * 5 as age, p.position, count(p.id) as count, avg(height), avg(weight) from players as p group by age, p.position order by age asc, p.position asc;
++------+----------+-------+-------------+-------------+
+| age  | position | count | avg(height) | avg(weight) |
++------+----------+-------+-------------+-------------+
+|   15 | DF       |     2 |    185.0000 |     77.5000 |
+|   15 | FW       |     3 |    179.0000 |     72.0000 |
+|   15 | MF       |     4 |    175.0000 |     66.0000 |
+|   20 | DF       |    61 |    183.9672 |     77.1639 |
+|   20 | FW       |    51 |    179.0392 |     73.2353 |
+|   20 | GK       |    14 |    187.6429 |     80.5000 |
+|   20 | MF       |    81 |    178.9383 |     73.0741 |
+|   25 | DF       |   113 |    183.3982 |     77.7080 |
+|   25 | FW       |    63 |    181.1429 |     76.2381 |
+|   25 | GK       |    45 |    188.6889 |     82.9111 |
+|   25 | MF       |   121 |    179.4793 |     74.3306 |
+|   30 | DF       |    57 |    181.1053 |     76.3509 |
+|   30 | FW       |    32 |    180.9063 |     77.1875 |
+|   30 | GK       |    31 |    186.0968 |     83.3548 |
+|   30 | MF       |    42 |    178.1905 |     74.6667 |
+|   35 | DF       |     3 |    189.0000 |     84.3333 |
+|   35 | FW       |     3 |    184.3333 |     83.3333 |
+|   35 | GK       |     5 |    186.8000 |     84.2000 |
+|   35 | MF       |     4 |    178.7500 |     74.5000 |
+|   40 | GK       |     1 |    191.0000 |     94.0000 |
++------+----------+-------+-------------+-------------+
+20 rows in set (0.00 sec)
+
+
+https://tech.pjin.jp/blog/2016/09/11/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f23/
+mysql> select p.name, p.height, p.weight from players as p order by p.height desc limit 5;
++-----------------------+--------+--------+
+| name                  | height | weight |
++-----------------------+--------+--------+
+| フォースター          |    201 |     99 |
+| クルトワ              |    199 |     91 |
+| メルテザッカー        |    198 |     90 |
+| フェイジッチ          |    198 |     95 |
+| バンビュイテン        |    197 |     95 |
++-----------------------+--------+--------+
+5 rows in set (0.01 sec)
+
+
+https://tech.pjin.jp/blog/2016/09/11/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f24/
+mysql> select p.name, p.height, p.weight from players as p order by p.height desc limit 15 offset 5;
++-----------------------+--------+--------+
+| name                  | height | weight |
++-----------------------+--------+--------+
+| ベゴビッチ            |    196 |     83 |
+| ハート                |    196 |     89 |
+| スマイラ              |    196 |     80 |
+| コアテス              |    196 |     85 |
+| カピノ                |    196 |     86 |
+| ゴンザレス            |    196 |     93 |
+| キム・シンウク        |    196 |     93 |
+| ベルカレム            |    195 |     90 |
+| ガブリエル            |    195 |     80 |
+| エグウエクウェ        |    195 |     91 |
+| アンドゥハル          |    194 |     88 |
+| フェライニ            |    194 |     85 |
+| スターリング          |    194 |     90 |
+| ルイジコフ            |    194 |     92 |
+| ウチェボ              |    194 |     86 |
++-----------------------+--------+--------+
+15 rows in set (0.01 sec)
+
+
 https://tech.pjin.jp/blog/2016/10/29/sql%e7%b7%b4%e7%bf%92%e5%95%8f%e9%a1%8c-%e5%95%8f28/
 mysql> select * from players where birth <= date_add('2016-01-13', interval -40 year);
 +-----+------------+-------------+----------+--------------------+-----------------------------------+------------+--------+--------+
